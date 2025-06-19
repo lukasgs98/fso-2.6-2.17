@@ -5,14 +5,13 @@ const Form = ({labels, states, handlers}) => {
         setter(value)
     }
 
-    const headerLabel = labels[0];
     const inputLabels = labels.slice(1);
     const inputStates = states.slice(1);
     const inputHandlers = handlers.slice(1);
     
     return (
         <>
-            <h2>{headerLabel}</h2>
+            <h2>labels[0]</h2>
             <form onSubmit={handlers[0]}>
                 {inputLabels.map((label, index) => {
                     return (
