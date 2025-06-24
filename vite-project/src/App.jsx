@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import axios from "axios"
+import services from "./services/persons.js"
 import Persons from "./components/Persons.jsx"
 import Form from "./components/Form.jsx"
 import Filter from "./components/Filter.jsx"
@@ -11,7 +11,7 @@ const App = () => {
   const [currentFilter, setCurrentFilter] = useState("")
   
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then(response => {
+    services.getAll().then(response => {
       setPersons(response.data)
     })
   }, [])
@@ -22,12 +22,35 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    if (persons.find((person) => person.name === newName)) {
-      alert(`${newName} is already added to the phonebook`)
+
+    const newObject = {
+      "name": newName, "number": newNumber
+    }
+
+    const exists = persons.find((person) => person.name === newName)
+    if (exists) {
+      if (confirm(`${newName} is already added to the phonebook. Replace the number?`)) {
+        services.updatePerson(exists.id, newObject)
+          .then(response => setPersons(
+            persons.map(person => person.id === response.data.id ? response.data : person)
+          )
+        )
+      }
     } else {
-      setPersons([...persons, {"id": newName, "name": newName, "number": newNumber}])
+      services.addPerson(newObject)
+        .then(response => setPersons(persons.concat(response.data)))
     }
     setNewName("")
+    setNewNumber("")
+  }
+
+  const handleDelete = (event) => {
+    if (confirm(`Delete ${event.target.name}?`)) {
+      services.deletePerson(event.target.id)
+        .catch(error => console.log("Person already deleted!"))
+
+      setPersons(persons.filter(person => person.id !== event.target.id))
+    }
   }
 
   return (
@@ -43,7 +66,8 @@ const App = () => {
         handlers={[handleSubmit, setNewName, setNewNumber]} 
       />
       <Persons 
-        persons={filteredPersons} 
+        persons={filteredPersons}
+        handleDelete={handleDelete}
       />
     </div>
   )
