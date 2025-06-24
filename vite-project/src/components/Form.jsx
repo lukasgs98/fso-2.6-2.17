@@ -11,7 +11,7 @@ const Form = ({labels, states, handlers}) => {
     
     return (
         <>
-            <h2>labels[0]</h2>
+            <h2>{labels[0]}</h2>
             <form onSubmit={handlers[0]}>
                 {inputLabels.map((label, index) => {
                     return (
